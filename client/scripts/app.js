@@ -1,7 +1,27 @@
-var app = {};
+var app = {
+  room : 'default'
+};
 app.init = function(){
+    //GET Messages from parse.com
+  app.fetch()
 
+  $('.refresh').on('click', function() {
+    app.clearMessages()
+    app.fetch();
+  });
+
+  $('.input').focus().select();
+
+  $('.submit').on('click', function() {
+    sendMessage(createMessage($('.input').val()));
+  });
+
+  $('.chatrooms').on('click', function() {
+    $('#chats').hide()
+    $("'"+($(event.target).attr('id'))+"'").show()
+  })
 }
+
 app.fetch = function() {$.ajax({
   // This is the url you should use to communicate with the parse API server.
   url: 'https://api.parse.com/1/classes/chatterbox',
@@ -12,8 +32,15 @@ app.fetch = function() {$.ajax({
     _.each(data['results'], function (post){
       var text = bleach.sanitize(post.text);
       var user = bleach.sanitize(post.username);
+      var room = bleach.sanitize(post.roomname);
+      //Appends messages to body
       if(!(user === 'undefined' || text === 'undefined')) {
-        $('body').append("<div id = chats>"+user+":"+text+"</div>")
+        console.log("<div id = chats class = message "+room)
+        $('body').append("<div id = chats class = message "+room+">"+user+":"+text+"</div>")
+        //Creates Room Buttons
+        if(room !== 'undefined' && document.getElementById('#'+room) === null) {
+          $('.chatrooms').append("<button type = button id = #"+room+">"+room+"</button>")
+        }
       }
     })
     console.log('chatterbox: Message recieved');
@@ -23,7 +50,7 @@ app.fetch = function() {$.ajax({
   }
 })};
 
-app.addMessage = function(text) {
+app.createMessage = function(text) {
   var message = {}
 
   //Prompt - grab user input
@@ -33,8 +60,17 @@ app.addMessage = function(text) {
 
   return message;
 }
+
 app.clearMessages = function() {
-  $('#chats').remove();
+  $('.message').remove();
+}
+
+app.addMessage = function (message) {
+  var text = bleach.sanitize(message.text);
+  var user = bleach.sanitize(message.username);
+  if(!(user === 'undefined' || text === 'undefined')) {
+    $('body').append("<div id = chats>"+user+":"+text+"</div>")
+  }
 }
 
 app.send = function(message) {
@@ -54,19 +90,6 @@ app.send = function(message) {
   });
 }
 
-
 $(document).ready(function(){
-  //GET Messages from parse.com
-  app.fetch()
-
-  $('.refresh').on('click', function() {
-    app.clearMessages()
-    app.fetch();
-  });
-
-  $('.input').focus().select();
-
-  $('.submit').on('click', function() {
-    sendMessage(createMessage($('.input').val()));
-  });
+  app.init();
 })
