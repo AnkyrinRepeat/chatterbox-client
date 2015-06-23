@@ -6,13 +6,19 @@ body {
 }
 
 #main {
-    width: 500px;
+    width: 700px;
     margin: auto;
     text-align: left;
     background: white;
     padding: 50px 60px;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
+}
+
+.chatrooms {
+    float:left;
+    padding: 50px 60px;
+    width: 50px;
 }
 
 #main h1 {
@@ -73,6 +79,10 @@ form input[type=text] {
     background-color: #ddd;
 }
 
+.friend {
+    font-weight: bold;
+}
+
 .spinner {
     float: right;
     height: 46px;
@@ -81,4 +91,9 @@ form input[type=text] {
 
 .spinner img {
     padding: 10px;
+}
+
+#current_chat {
+  margin: 10px 10px 10px 0;
+  color: red;
 }

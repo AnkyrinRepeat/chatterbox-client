@@ -1,28 +1,52 @@
 var app = {
-  room : 'default'
+  room : 'default',
+  friends : {}
 };
 app.init = function(){
-    //GET Messages from parse.com
   app.fetch()
 
   $('.refresh').on('click', function() {
-    app.clearMessages()
     app.fetch();
   });
 
   $('.input').focus().select();
 
-  $('.submit').on('click', function() {
+  $('#submit_message').on('click', function() {
     app.send(app.createMessage($('.input').val()));
   });
 
   $('.chatrooms').on('click', function() {
-    $('.message').hide()
-    $(($(event.target).attr('id'))).show()
+    $('.message').hide();
+    $($(event.target).attr('class')).show();
+    app.room = $(event.target).attr('class').slice(1).replace(/[^A-Za-z0-9]/g,'');
+    $('#current_chat').text(app.room)
+    app.clickable()
   })
+
+  $('#chatroom_submit').on('click', function() {
+    app.room = $('#chatroom_input').val().replace(/[^A-Za-z0-9]/g,'');
+    $('.message').hide();
+    $('.'+app.room).show();
+    $('#current_chat').text('Your current chatroom is '+app.room)
+    app.clickable()
+  })
+
 }
 
-app.fetch = function() {$.ajax({
+app.clickable = function(){
+  $('.message').on('click', function() {
+    appRoom = $(event.target).attr('username').replace(/[^A-Za-z0-9]/g,'');
+    $('.message').hide()
+    $("."+appRoom).show();
+    $('#current_chat').text('Your current chatroom is '+ appRoom)
+    }
+  )
+  .css('cursor','pointer')
+}
+
+app.fetch = function() {
+  app.clearMessages();
+  $.ajax({
   // This is the url you should use to communicate with the parse API server.
   url: 'https://api.parse.com/1/classes/chatterbox',
   type: 'GET',
@@ -31,15 +55,27 @@ app.fetch = function() {$.ajax({
   success: function (data) {
     _.each(data['results'], function (post){
       var text = bleach.sanitize(post.text);
-      var user = bleach.sanitize(post.username);
-      var room = bleach.sanitize(post.roomname);
+      var user = bleach.sanitize(post.username).replace(/[^A-Za-z0-9]/g,'');
+      var room = bleach.sanitize(post.roomname).replace(/[^A-Za-z0-9]/g,'');
       //Appends messages to body
-      if(!(user === 'undefined' || text === 'undefined')) {
-        $('#messageHanger').append("<div id = chats class = \"message "+room+"\">"+user+":"+text+"</div>")
-        //Creates Room Buttons
-        if(room !== 'undefined' && document.getElementById('#'+room) === null) {
-          $('.chatrooms').append("<button type = button id = #"+room+">"+room+"</button>")
-        }
+      if(!(user === 'undefined' || text === 'undefined' || user === '' || text === '')) {
+        $('#messageHanger').append("<div id = chats username = "+user+" class = \"message "+room+" "+user+"\">"+user+":"+text+"  </div>").attr(user)
+        $('.message').on('click', function() {
+          app.room = $(event.target).attr('username').replace(/[^A-Za-z0-9]/g,'');
+          // $('.message').hide()
+          // $("."+app.room).show();
+          // $('#current_chat').text('Your current chatroom is '+ app.room)
+          if ($(event.target).hasClass('friend')) {
+            app.friends[$(event.target).attr('username')] = false;
+            $('.'+$(event.target).attr('username')).removeClass('friend');
+          } else {
+            app.friends[$(event.target).attr('username')] = true;
+            $('.'+$(event.target).attr('username')).addClass('friend');
+          }
+        })
+      }
+      if(room !== 'undefined' && document.getElementById('#'+room) === null && room !== '') {
+        $('.chatrooms').append("<button type = button id = #"+room+" class = ."+room+">"+room+"</button>")
       }
     })
     console.log('chatterbox: Message recieved');
@@ -54,8 +90,8 @@ app.createMessage = function(text) {
 
   //Prompt - grab user input
   message.username = window.location.search.slice(10);
-  message.text = text
-  message.roomname = 'default'
+  message.text = text;
+  message.roomname = app.room;
 
   return message;
 }
@@ -73,7 +109,6 @@ app.addMessage = function (message) {
 }
 
 app.send = function(message) {
-
   $.ajax({
     url: 'https://api.parse.com/1/classes/chatterbox',
     type: 'POST',
@@ -87,8 +122,10 @@ app.send = function(message) {
       console.error('chatterbox: Failed to send message');
     }
   });
+  app.fetch();
 }
 
 $(document).ready(function(){
   app.init();
+  app.clickable();
 })

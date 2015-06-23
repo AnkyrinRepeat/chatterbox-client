@@ -15,14 +15,18 @@
     <script src="scripts/app.js"></script>
   </head>
   <body>
+    <div class = "chatrooms"></div>
     <div id="main">
       <h1>chatterbox</h1>
       <form>
         Message: <input class = "input" type="text" name="Message" value="Put your message here!"><br>
-        <button type="button" class="submit">Send Message</button>
+        <button type="button" id="submit_message">Send Message</button><br>
+        <div id = 'current_chat'>Default</div>
+        Chatroom: <input id = "chatroom_input" type="text" name="Message" value="Put your chatroom here!"><br>
+        <button type="button" id="chatroom_submit">Select Chatroom</button>
       </form>
+
       <button type="button" class="refresh">Refresh Messages</button>
-      <div class = "chatrooms"></div>
       <div id = "messageHanger"></div>
 
 
