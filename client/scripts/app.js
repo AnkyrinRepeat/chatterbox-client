@@ -13,7 +13,7 @@ app.init = function(){
   $('.input').focus().select();
 
   $('.submit').on('click', function() {
-    sendMessage(createMessage($('.input').val()));
+    app.send(app.createMessage($('.input').val()));
   });
 
   $('.chatrooms').on('click', function() {
@@ -35,11 +35,10 @@ app.fetch = function() {$.ajax({
       var room = bleach.sanitize(post.roomname);
       //Appends messages to body
       if(!(user === 'undefined' || text === 'undefined')) {
-        console.log("<div id = chats class = message "+room)
-        $('body').append("<div id = chats class = message "+room+">"+user+":"+text+"</div>")
+        $('#messageHanger').prepend("<div id = chats class = \"message "+room+"\">"+user+":"+text+"</div>")
         //Creates Room Buttons
         if(room !== 'undefined' && document.getElementById('#'+room) === null) {
-          $('.chatrooms').append("<button type = button id = #"+room+">"+room+"</button>")
+          $('.chatrooms').prepend("<button type = button id = #"+room+">"+room+"</button>")
         }
       }
     })
