@@ -17,8 +17,8 @@ app.init = function(){
   });
 
   $('.chatrooms').on('click', function() {
-    $('#chats').hide()
-    $("'"+($(event.target).attr('id'))+"'").show()
+    $('.message').hide()
+    $(($(event.target).attr('id'))).show()
   })
 }
 
@@ -35,10 +35,10 @@ app.fetch = function() {$.ajax({
       var room = bleach.sanitize(post.roomname);
       //Appends messages to body
       if(!(user === 'undefined' || text === 'undefined')) {
-        $('#messageHanger').prepend("<div id = chats class = \"message "+room+"\">"+user+":"+text+"</div>")
+        $('#messageHanger').append("<div id = chats class = \"message "+room+"\">"+user+":"+text+"</div>")
         //Creates Room Buttons
         if(room !== 'undefined' && document.getElementById('#'+room) === null) {
-          $('.chatrooms').prepend("<button type = button id = #"+room+">"+room+"</button>")
+          $('.chatrooms').append("<button type = button id = #"+room+">"+room+"</button>")
         }
       }
     })
