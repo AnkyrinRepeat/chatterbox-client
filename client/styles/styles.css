@@ -16,9 +16,9 @@ body {
 }
 
 .chatrooms {
-    float:left;
+/*    float:left;
     padding: 50px 60px;
-    width: 50px;
+    width: 50px;*/
 }
 
 #main h1 {
@@ -81,6 +81,10 @@ form input[type=text] {
 
 .friend {
     font-weight: bold;
+}
+
+.message {
+
 }
 
 .spinner {

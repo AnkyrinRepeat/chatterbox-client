@@ -4,7 +4,7 @@ var app = {
 };
 app.init = function(){
   app.fetch()
-
+  //Refresh button clears the page and fetches update
   $('.refresh').on('click', function() {
     app.fetch();
   });
@@ -20,7 +20,6 @@ app.init = function(){
     $($(event.target).attr('class')).show();
     app.room = $(event.target).attr('class').slice(1).replace(/[^A-Za-z0-9]/g,'');
     $('#current_chat').text(app.room)
-    app.clickable()
   })
 
   $('#chatroom_submit').on('click', function() {
@@ -28,20 +27,7 @@ app.init = function(){
     $('.message').hide();
     $('.'+app.room).show();
     $('#current_chat').text('Your current chatroom is '+app.room)
-    app.clickable()
   })
-
-}
-
-app.clickable = function(){
-  $('.message').on('click', function() {
-    appRoom = $(event.target).attr('username').replace(/[^A-Za-z0-9]/g,'');
-    $('.message').hide()
-    $("."+appRoom).show();
-    $('#current_chat').text('Your current chatroom is '+ appRoom)
-    }
-  )
-  .css('cursor','pointer')
 }
 
 app.fetch = function() {
@@ -54,17 +40,18 @@ app.fetch = function() {
   // contentType: 'application/json',
   success: function (data) {
     _.each(data['results'], function (post){
+      //Sanitize messages
       var text = bleach.sanitize(post.text);
       var user = bleach.sanitize(post.username).replace(/[^A-Za-z0-9]/g,'');
       var room = bleach.sanitize(post.roomname).replace(/[^A-Za-z0-9]/g,'');
-      //Appends messages to body
+
+      //Remove empty messages
       if(!(user === 'undefined' || text === 'undefined' || user === '' || text === '')) {
+        //Appends messages to a empty div inside main
         $('#messageHanger').append("<div id = chats username = "+user+" class = \"message "+room+" "+user+"\">"+user+":"+text+"  </div>").attr(user)
+        //Toggles friends on click
         $('.message').on('click', function() {
           app.room = $(event.target).attr('username').replace(/[^A-Za-z0-9]/g,'');
-          // $('.message').hide()
-          // $("."+app.room).show();
-          // $('#current_chat').text('Your current chatroom is '+ app.room)
           if ($(event.target).hasClass('friend')) {
             app.friends[$(event.target).attr('username')] = false;
             $('.'+$(event.target).attr('username')).removeClass('friend');
@@ -74,6 +61,7 @@ app.fetch = function() {
           }
         })
       }
+      //Adds room buttons
       if(room !== 'undefined' && document.getElementById('#'+room) === null && room !== '') {
         $('.chatrooms').append("<button type = button id = #"+room+" class = ."+room+">"+room+"</button>")
       }
@@ -88,7 +76,6 @@ app.fetch = function() {
 app.createMessage = function(text) {
   var message = {}
 
-  //Prompt - grab user input
   message.username = window.location.search.slice(10);
   message.text = text;
   message.roomname = app.room;
@@ -127,5 +114,4 @@ app.send = function(message) {
 
 $(document).ready(function(){
   app.init();
-  app.clickable();
 })
